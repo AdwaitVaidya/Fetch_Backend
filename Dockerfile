@@ -1,16 +1,14 @@
-# Use official Golang image as the base image
 FROM golang:latest
 
-WORKDIR /app
-
-COPY go.mod .
-COPY go.sum .
-RUN go mod download
-
+WORKDIR /usr/src/app
+COPY go.mod go.sum ./
+RUN go mod download && go mod verify
 COPY . .
 
-RUN go build -o Fetch_Backend .
+RUN go build -o ./cmd/server/main ./cmd/server/main.go
+
 
 EXPOSE 8080
+CMD ["./cmd/server/main"]
 
-CMD ["./Fetch_Backend"]
+

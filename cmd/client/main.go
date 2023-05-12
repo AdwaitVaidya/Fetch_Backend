@@ -1,8 +1,6 @@
 package main
 
 import (
-	"bytes"
-	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -34,15 +32,16 @@ type ResponsePoints struct {
 
 func main() {
 	//url := "http://localhost:8080/receipts/process"
-	payload := Receipt{
-		Retailer:     "Target",
-		PurchaseDate: "2022-01-02",
-		PurchaseTime: "13:13",
-		Total:        1.25,
-		Items: []Item{
-			{ShortDescription: "Pepsi - 12-oz", Price: 1.25},
-		},
-	}
+	// payload := Receipt{
+	// 	Retailer:     "Target",
+	// 	PurchaseDate: "2022-01-02",
+	// 	PurchaseTime: "13:13",
+	// 	Items: []Item{
+	// 		{ShortDescription: "Pepsi - 12-oz", Price: 1.25},
+	// 	},
+	// 	Total: 1.25,
+	// }
+
 	// payload = Receipt{
 	// 	Retailer:     "Target",
 	// 	PurchaseDate: "2022-01-01",
@@ -84,12 +83,12 @@ func main() {
 	// 	},
 	// 	Total: 9.00}
 
-	payloadBytes, err := json.Marshal(payload)
-	if err != nil {
-		fmt.Println("Error marshalling payload:", err)
-		return
-	}
-	resp, err := http.Post("http://localhost:8080/receipts/process", "application/json", bytes.NewReader(payloadBytes))
+	// payloadBytes, err := json.Marshal(payload)
+	// if err != nil {
+	// 	fmt.Println("Error marshalling payload:", err)
+	// 	return
+	// }
+	resp, err := http.Get("http://localhost:8080/receipts/b7073fd1-2293-4813-9690-66cdb0f7d92f/points")
 	if err != nil {
 		fmt.Println("Error sending POST request:", err)
 		return
@@ -100,7 +99,8 @@ func main() {
 		fmt.Println("Error reading response body:", err)
 		return
 	}
-	print(body)
+	sb := string(body)
+	fmt.Println(sb)
 	// Unmarshal the response to a ResponseID struct
 	// var responseID ResponseID
 	// if err := json.Unmarshal(body, &responseID); err != nil {

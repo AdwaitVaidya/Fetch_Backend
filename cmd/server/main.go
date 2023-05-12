@@ -37,18 +37,25 @@ type ResponsePoints struct {
 	Points int `json:"points"`
 }
 
+// store points with specific uid (uid)->(points)
 var myMap map[string]int
 
+/*
+Initializa the myMap and attach functions to endpoints.
+*/
 func main() {
 	router := mux.NewRouter()
 	myMap = make(map[string]int)
 	router.HandleFunc("/receipts/process", ProcessReceipt).Methods("POST")
 	router.HandleFunc("/receipts/{id}/points", GetPoints).Methods("GET")
-
 	fmt.Println("Server started on port 8080")
 	log.Fatal(http.ListenAndServe(":8080", router))
 }
 
+/*
+Process the receipt, calculate points, uid and set value in map. Returns a ResposeID with
+specific uuid.
+*/
 func ProcessReceipt(w http.ResponseWriter, r *http.Request) {
 	print("PP")
 
@@ -69,18 +76,18 @@ func ProcessReceipt(w http.ResponseWriter, r *http.Request) {
 		fmt.Println("error:", err)
 		return
 	}
+	var data ResponseID
+	data.ID = u
 
 	fmt.Println(string(b))
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("Success"))
-	// // Generate a unique ID for the receipt
-	// receipt.ID = generateID()
-
-	// // Return the ID as the response
-	// w.Header().Set("Content-Type", "application/json")
-	// json.NewEncoder(w).Encode(receipt)
+	json.NewEncoder(w).Encode(data)
 }
 
+/*
+Function to calculate points from a given receipt.
+*/
 func CalculatePoints(receipt Receipt) int {
 	points := 0
 
@@ -126,28 +133,32 @@ func CalculatePoints(receipt Receipt) int {
 	return points
 }
 
+/*
+Generate point and
+*/
 func GetPoints(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	receiptID := params["id"]
-	print(receiptID)
-	val := myMap[receiptID]
-	print(val)
 	// Look up the receipt by ID and calculate the points awarded
 	// ...
-	points := 32 // Replace with the actual points awarded
+	var points ResponsePoints // Replace with the actual points awarded
+	ok := false
+	points.Points, ok = myMap[receiptID]
 
+	if !ok {
+		http.Error(w, "key not in map", http.StatusInternalServerError)
+		return
+	}
 	// Create the response object
-	response := ResponsePoints{Points: points}
 
 	// Encode the response object as JSON and send it in the response
 	w.Header().Set("Content-Type", "application/json")
-	err := json.NewEncoder(w).Encode(response)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
+	json.NewEncoder(w).Encode(points)
 }
 
+/*
+Generate and return uuid.
+*/
 func generateID() string {
 	return uuid.New().String()
 }
