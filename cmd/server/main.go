@@ -57,7 +57,6 @@ Process the receipt, calculate points, uid and set value in map. Returns a Respo
 specific uuid.
 */
 func ProcessReceipt(w http.ResponseWriter, r *http.Request) {
-	print("PP")
 
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -71,15 +70,9 @@ func ProcessReceipt(w http.ResponseWriter, r *http.Request) {
 	}
 	u := generateID()
 	myMap[u] = CalculatePoints(receipt)
-	b, err := json.Marshal(myMap)
-	if err != nil {
-		fmt.Println("error:", err)
-		return
-	}
 	var data ResponseID
 	data.ID = u
 
-	fmt.Println(string(b))
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(data)
